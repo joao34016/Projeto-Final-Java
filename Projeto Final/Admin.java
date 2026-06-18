@@ -103,14 +103,49 @@ public class Admin {
         System.out.println("Dentista cadastrado com sucesso.");
     }
 
-    public static void listarRegistros() {
+    public static void listarRegistros(Scanner scanner) {
         if (total == 0) {
             System.out.println("Nenhum cadastro realizado.");
             return;
         }
-        System.out.println("--- Lista de cadastros ---");
-        for (int i = 0; i < total; i++) {
-            System.out.println((i) + " - " + registros[i].toString());
+
+        while (true) {
+            System.out.println("--- Listar Cadastros ---");
+            System.out.println("0 - Voltar");
+            System.out.println("1 - Listar Pacientes");
+            System.out.println("2 - Listar Dentistas");
+            System.out.print("Escolha: ");
+            String optLine = scanner.nextLine();
+            int opt = -1;
+            try { opt = Integer.parseInt(optLine); } catch (Exception e) { System.out.println("Opção inválida."); continue; }
+
+            if (opt == 0) return;
+
+            if (opt == 1) {
+                System.out.println("--- Pacientes ---");
+                boolean encontrado = false;
+                for (int i = 0; i < total; i++) {
+                    if (registros[i] instanceof Paciente) {
+                        System.out.println(i + " - " + registros[i].toString());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) System.out.println("Nenhum paciente cadastrado.");
+                return;
+            } else if (opt == 2) {
+                System.out.println("--- Dentistas ---");
+                boolean encontrado = false;
+                for (int i = 0; i < total; i++) {
+                    if (registros[i] instanceof Dentista) {
+                        System.out.println(i + " - " + registros[i].toString());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) System.out.println("Nenhum dentista cadastrado.");
+                return;
+            } else {
+                System.out.println("Opção inválida.");
+            }
         }
     }
 
@@ -119,26 +154,69 @@ public class Admin {
             System.out.println("Nenhum cadastro para excluir.");
             return;
         }
-        listarRegistros();
-        System.out.print("Digite o índice do registro que deseja excluir: ");
-        String line = scanner.nextLine();
-        int idx;
-        try {
-            idx = Integer.parseInt(line);
-        } catch (Exception e) {
-            System.out.println("Índice inválido.");
+        // Escolher tipo a excluir
+        while (true) {
+            System.out.println("--- Excluir Cadastro ---");
+            System.out.println("0 - Voltar");
+            System.out.println("1 - Excluir Paciente");
+            System.out.println("2 - Excluir Dentista");
+            System.out.print("Escolha: ");
+            String optLine = scanner.nextLine();
+            int opt = -1;
+            try { opt = Integer.parseInt(optLine); } catch (Exception e) { System.out.println("Opção inválida."); continue; }
+            if (opt == 0) return;
+
+            boolean encontrado = false;
+            if (opt == 1) {
+                System.out.println("--- Pacientes ---");
+                for (int i = 0; i < total; i++) {
+                    if (registros[i] instanceof Paciente) {
+                        System.out.println(i + " - " + registros[i].toString());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) { System.out.println("Nenhum paciente cadastrado."); return; }
+            } else if (opt == 2) {
+                System.out.println("--- Dentistas ---");
+                for (int i = 0; i < total; i++) {
+                    if (registros[i] instanceof Dentista) {
+                        System.out.println(i + " - " + registros[i].toString());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) { System.out.println("Nenhum dentista cadastrado."); return; }
+            } else {
+                System.out.println("Opção inválida.");
+                continue;
+            }
+
+            System.out.print("Digite o índice do registro que deseja excluir: ");
+            String line = scanner.nextLine();
+            int idx;
+            try {
+                idx = Integer.parseInt(line);
+            } catch (Exception e) {
+                System.out.println("Índice inválido.");
+                return;
+            }
+            if (idx < 0 || idx >= total) {
+                System.out.println("Índice fora do intervalo.");
+                return;
+            }
+            // Verificar se o índice corresponde ao tipo escolhido
+            if ((opt == 1 && !(registros[idx] instanceof Paciente)) || (opt == 2 && !(registros[idx] instanceof Dentista))) {
+                System.out.println("O índice informado não corresponde ao tipo selecionado.");
+                return;
+            }
+
+            for (int i = idx; i < total - 1; i++) {
+                registros[i] = registros[i + 1];
+            }
+            registros[total - 1] = null;
+            total--;
+            System.out.println("Registro excluído com sucesso.");
             return;
         }
-        if (idx < 0 || idx >= total) {
-            System.out.println("Índice fora do intervalo.");
-            return;
-        }
-        for (int i = idx; i < total - 1; i++) {
-            registros[i] = registros[i + 1];
-        }
-        registros[total - 1] = null;
-        total--;
-        System.out.println("Registro excluído com sucesso.");
     }
 
     public static void pesquisarRegistro(Scanner scanner) {
@@ -199,53 +277,95 @@ public class Admin {
             System.out.println("Nenhum cadastro para editar.");
             return;
         }
+        // Escolher tipo a editar
+        while (true) {
+            System.out.println("--- Editar Cadastro ---");
+            System.out.println("0 - Voltar");
+            System.out.println("1 - Editar Paciente");
+            System.out.println("2 - Editar Dentista");
+            System.out.print("Escolha: ");
+            String optLine = scanner.nextLine();
+            int opt = -1;
+            try { opt = Integer.parseInt(optLine); } catch (Exception e) { System.out.println("Opção inválida."); continue; }
+            if (opt == 0) return;
 
-        listarRegistros();
-        System.out.print("Digite o índice do registro que deseja editar: ");
-        String line = scanner.nextLine();
-        int idx;
-        try {
-            idx = Integer.parseInt(line);
-        } catch (Exception e) {
-            System.out.println("Índice inválido.");
+            boolean encontrado = false;
+            if (opt == 1) {
+                System.out.println("--- Pacientes ---");
+                for (int i = 0; i < total; i++) {
+                    if (registros[i] instanceof Paciente) {
+                        System.out.println(i + " - " + registros[i].toString());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) { System.out.println("Nenhum paciente cadastrado."); return; }
+            } else if (opt == 2) {
+                System.out.println("--- Dentistas ---");
+                for (int i = 0; i < total; i++) {
+                    if (registros[i] instanceof Dentista) {
+                        System.out.println(i + " - " + registros[i].toString());
+                        encontrado = true;
+                    }
+                }
+                if (!encontrado) { System.out.println("Nenhum dentista cadastrado."); return; }
+            } else {
+                System.out.println("Opção inválida.");
+                continue;
+            }
+
+            System.out.print("Digite o índice do registro que deseja editar: ");
+            String line = scanner.nextLine();
+            int idx;
+            try {
+                idx = Integer.parseInt(line);
+            } catch (Exception e) {
+                System.out.println("Índice inválido.");
+                return;
+            }
+            if (idx < 0 || idx >= total) {
+                System.out.println("Índice fora do intervalo.");
+                return;
+            }
+
+            Pessoa p = registros[idx];
+            // Verificar tipo corresponde à escolha
+            if ((opt == 1 && !(p instanceof Paciente)) || (opt == 2 && !(p instanceof Dentista))) {
+                System.out.println("O índice informado não corresponde ao tipo selecionado.");
+                return;
+            }
+
+            System.out.println("Registro selecionado: " + p.toString());
+
+            if (p instanceof Paciente) {
+                System.out.print("Novo nome do paciente: ");
+                String nome = scanner.nextLine();
+                System.out.print("Novo id do paciente (número): ");
+                int id = Integer.parseInt(scanner.nextLine());
+                System.out.print("Nova idade: ");
+                int idade = Integer.parseInt(scanner.nextLine());
+                System.out.print("Novo plano (particular/convênio): ");
+                String plano = scanner.nextLine();
+
+                registros[idx] = new Paciente(nome, id, idade, plano);
+                System.out.println("Paciente atualizado com sucesso.");
+
+            } else if (p instanceof Dentista) {
+                System.out.print("Novo nome do dentista: ");
+                String nome = scanner.nextLine();
+                System.out.print("Novo id do dentista (número): ");
+                int id = Integer.parseInt(scanner.nextLine());
+                System.out.print("Novo CRO: ");
+                String cro = scanner.nextLine();
+                System.out.print("Nova especialidade: ");
+                String esp = scanner.nextLine();
+
+                registros[idx] = new Dentista(nome, id, cro, esp);
+                System.out.println("Dentista atualizado com sucesso.");
+
+            } else {
+                System.out.println("Tipo de registro desconhecido. Não é possível editar.");
+            }
             return;
-        }
-        if (idx < 0 || idx >= total) {
-            System.out.println("Índice fora do intervalo.");
-            return;
-        }
-
-        Pessoa p = registros[idx];
-        System.out.println("Registro selecionado: " + p.toString());
-
-        if (p instanceof Paciente) {
-            System.out.print("Novo nome do paciente: ");
-            String nome = scanner.nextLine();
-            System.out.print("Novo id do paciente (número): ");
-            int id = Integer.parseInt(scanner.nextLine());
-            System.out.print("Nova idade: ");
-            int idade = Integer.parseInt(scanner.nextLine());
-            System.out.print("Novo plano (particular/convênio): ");
-            String plano = scanner.nextLine();
-
-            registros[idx] = new Paciente(nome, id, idade, plano);
-            System.out.println("Paciente atualizado com sucesso.");
-
-        } else if (p instanceof Dentista) {
-            System.out.print("Novo nome do dentista: ");
-            String nome = scanner.nextLine();
-            System.out.print("Novo id do dentista (número): ");
-            int id = Integer.parseInt(scanner.nextLine());
-            System.out.print("Novo CRO: ");
-            String cro = scanner.nextLine();
-            System.out.print("Nova especialidade: ");
-            String esp = scanner.nextLine();
-
-            registros[idx] = new Dentista(nome, id, cro, esp);
-            System.out.println("Dentista atualizado com sucesso.");
-
-        } else {
-            System.out.println("Tipo de registro desconhecido. Não é possível editar.");
         }
     }
 
@@ -279,7 +399,7 @@ public class Admin {
                     cadastrarDentista(scanner);
                     break;
                 case 3:
-                    listarRegistros();
+                    listarRegistros(scanner);
                     break;
                 case 4:
                     excluirRegistro(scanner);
